@@ -1,10 +1,12 @@
 #include <WebServer.h>
 #include <WiFi.h>
+#include "stens_moisture_sensor.h"
 
 const char* ssid = "MagentaWLAN-RT6R";
 const char* password = "stenistderking";
 
 WebServer server(80);
+StensMoistureSensor sms("prototyp");
 
 void setup() {
   pinMode(32, INPUT);
@@ -19,22 +21,24 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.on("/", handle_root);
+  server.on("/json", handle_json);
   server.begin();
 }
 
 void loop() {
   server.handleClient();
   
-  Serial.print((4096.0-analogRead(32))/4096.0*100);
-  Serial.println(" %");
-  delay(500);
+  Serial.println(sms.getRaw());
 
+  delay(500);
 }
 
 void handle_root() {
-  String pre = "Eberhardt Jr.:<br>Bodenfeuchtigkeit: ";
-  float moisture = (4096.0-analogRead(32))/4096.0*100;
-  String rest = " %";
-  String out = pre + moisture + rest;
+  String out = sms.getHTML();
   server.send(200, "text/html", out);
+}
+
+void handle_json() {
+  String out = sms.getJson();
+  server.send(200, "application/json", out);
 }
