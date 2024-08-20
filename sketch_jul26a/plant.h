@@ -17,7 +17,7 @@ Plant::Plant(String name, int sensorNumber) {
 }
 
 float Plant::getHumidity() {
-  this->humidity = (4096.0-analogRead(32))/4096.0*100;
+  this->humidity = (4096.0-analogRead(sensorNumber))/4096.0*100;
   return this->humidity;
 }
 
